@@ -1,0 +1,44 @@
+# ============================================================
+#  Continue Extension Config — copy to:
+#  C:\Users\<your-username>\.continue\config.yaml
+# ============================================================
+#
+#  Changes here take effect IMMEDIATELY — no server restart needed.
+#
+#  Key parameters:
+#    maxTokens   → max output tokens per response
+#                  Rule: maxTokens + prompt_length <= MAX_MODEL_LEN (in config.env)
+#    temperature → 0.0=precise/deterministic  0.6=balanced  1.0=creative
+#    topP        → nucleus sampling (0.9 = standard, lower = more conservative)
+#    topK        → hard cap on candidate tokens (50 = standard, 1 = greedy)
+# ============================================================
+
+name: Local Config
+version: 1.0.0
+schema: v1
+models:
+  # ── 9B model: higher quality, ~50 tok/s, 8192 total context ─────────────
+  # Start: Qwen3.5-9B FP8 Local\start.bat   (port 8000)
+  - name: "Qwen3.5-9B FP8 | Quality | port 8000"
+    provider: openai
+    model: lovedheart/Qwen3.5-9B-FP8
+    apiBase: http://localhost:8000/v1
+    apiKey: local
+    completionOptions:
+      maxTokens: 2048        # output limit  (input = 8192 - 2048 = 6144 max)
+      temperature: 0.6       # 0.0=precise  0.6=balanced  1.0=creative
+      topP: 0.9
+      topK: 50
+
+  # ── 4B model: faster, larger context, ~70 tok/s, 16384 total context ────
+  # Start: Qwen3.5-4B BF16 Local\start.bat  (port 8001)
+  - name: "Qwen3.5-4B BF16 | Speed | port 8001"
+    provider: openai
+    model: Qwen/Qwen3.5-4B
+    apiBase: http://localhost:8001/v1
+    apiKey: local
+    completionOptions:
+      maxTokens: 4096        # output limit  (input = 16384 - 4096 = 12288 max)
+      temperature: 0.6
+      topP: 0.9
+      topK: 50
