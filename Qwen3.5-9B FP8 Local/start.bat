@@ -27,6 +27,6 @@ echo   Waiting for: Application startup complete.
 echo ============================================================
 echo.
 
-wsl -d Ubuntu -- bash -c "source ~/vllm-env/bin/activate && HF_HOME=%HF_CACHE% python -m vllm.entrypoints.openai.api_server --model %MODEL% --served-model-name gpt-4o --port %PORT% --host 0.0.0.0 --dtype auto --gpu-memory-utilization %GPU_MEMORY_UTILIZATION% --max-model-len %MAX_MODEL_LEN% --kv-cache-dtype %KV_CACHE_DTYPE% %EAGER_FLAG% --trust-remote-code --limit-mm-per-prompt '{\"image\": 0, \"video\": 0}' --chat-template '/mnt/d/Mojtaba/LOCAL MODELS/Qwen3.5-9B FP8 Local/no_think.jinja'"
+wsl -d Ubuntu -- bash -c "source ~/vllm-env/bin/activate && HF_HOME=%HF_CACHE% python -m vllm.entrypoints.openai.api_server --model %MODEL% --port %PORT% --host 0.0.0.0 --dtype auto --gpu-memory-utilization %GPU_MEMORY_UTILIZATION% --max-model-len %MAX_MODEL_LEN% --kv-cache-dtype %KV_CACHE_DTYPE% %EAGER_FLAG% --trust-remote-code --limit-mm-per-prompt '{\"image\": 0, \"video\": 0}' --chat-template '/mnt/d/Mojtaba/LOCAL MODELS/Qwen3.5-9B FP8 Local/no_think.jinja'"
 
 pause
