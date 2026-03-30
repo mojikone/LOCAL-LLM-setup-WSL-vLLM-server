@@ -6,7 +6,7 @@ No internet required after setup. No API costs.
 | Model | Speed | Context | Quality | Use When |
 |-------|-------|---------|---------|----------|
 | **Qwen3.5-9B FP8** (port 8000) | ~50 tok/s | 8,192 tokens | Higher | Complex reasoning, hard problems |
-| **Qwen3.5-4B BF16** (port 8001) | ~70 tok/s | 16,384 tokens | Good | Large files, fast answers |
+| **Qwen3.5-4B FP8** (port 8001) | ~80 tok/s | 16,384 tokens | Good | Large files, fast answers |
 
 > Only one can run at a time (VRAM constraint). Switch by closing one terminal and opening the other.
 
@@ -35,10 +35,10 @@ Double-click:
 Qwen3.5-9B FP8 Local\start.bat
 ```
 
-### Run Qwen3.5-4B BF16 (~70 tok/s, larger context)
+### Run Qwen3.5-4B FP8 (~80 tok/s, larger context)
 Double-click:
 ```
-Qwen3.5-4B BF16 Local\start.bat
+Qwen3.5-4B FP8 Local\start.bat
 ```
 
 Wait for this line in the terminal (takes ~2–3 min after first run):
@@ -56,7 +56,7 @@ To stop: close the terminal or press `Ctrl+C`.
 2. Press `Ctrl+L` to open the Continue chat
 3. Click the model name at the bottom — you'll see both models listed:
    - **"Qwen3.5-9B FP8 | Quality | port 8000"**
-   - **"Qwen3.5-4B BF16 | Speed | port 8001"**
+   - **"Qwen3.5-4B FP8 | Speed | port 8001"**
 4. Select whichever is currently running
 
 The Continue config is at `C:\Users\<username>\.continue\config.yaml`:
@@ -74,9 +74,9 @@ models:
       topP: 0.9
       topK: 50
 
-  - name: "Qwen3.5-4B BF16 | Speed | port 8001"
+  - name: "Qwen3.5-4B FP8 | Speed | port 8001"
     provider: openai
-    model: Qwen/Qwen3.5-4B
+    model: lovedheart/Qwen3.5-4B-FP8
     apiBase: http://localhost:8001/v1
     apiKey: local
     completionOptions:
@@ -118,8 +118,8 @@ Required  =  Model VRAM  +  KV Cache (min ~1 GB)
 **Our 16 GB GPU — both models:**
 ```
 Qwen3.5-9B fp8:   9.0 GB model  +  5.2 GB KV cache  =  14.2 GB  ✅
-Qwen3.5-4B bf16:  9.3 GB model  +  5.9 GB KV cache  =  15.2 GB  ✅
-Both together:    14.3 GB + 15.2 GB = 29.5 GB             ❌ (run one at a time)
+Qwen3.5-4B fp8:   4.0 GB model  +  9.5 GB KV cache  =  13.5 GB  ✅
+Both together:    14.2 GB + 13.5 GB = 27.7 GB             ❌ (run one at a time)
 ```
 
 ---
@@ -128,7 +128,7 @@ Both together:    14.3 GB + 15.2 GB = 29.5 GB             ❌ (run one at a time
 
 | Model | VRAM | Speed | Context | Quality | Best For |
 |-------|------|-------|---------|---------|----------|
-| Qwen3.5-4B bf16 | ~15 GB | **~70 tok/s** | 16,384 tok | Good | Large files, fast chat |
+| Qwen3.5-4B fp8  | ~8 GB  | **~80 tok/s** | 16,384 tok | Good | Large files, fast chat |
 | **Qwen3.5-9B fp8** | ~14 GB | **~50 tok/s** | 8,192 tok | **Strong** | Complex code, reasoning |
 | Qwen3.5-27B fp8 | ~27 GB | ~30 tok/s | 32,768 tok | Excellent | Needs 32 GB VRAM |
 
@@ -163,7 +163,7 @@ Each model folder has a `config.env` file you can edit before starting:
 ```ini
 # config.env — edit and restart start.bat to apply
 
-MODEL=Qwen/Qwen3.5-4B          # HuggingFace model ID
+MODEL=lovedheart/Qwen3.5-4B-FP8 # HuggingFace model ID
 PORT=8001                       # HTTP port for the API
 GPU_MEMORY_UTILIZATION=0.88    # Fraction of VRAM to use (see notes below)
 MAX_MODEL_LEN=16384             # Max tokens: input + output combined
@@ -358,7 +358,7 @@ if __name__ == "__main__":
 | Model | HuggingFace ID | Size | Cache Location |
 |-------|---------------|------|----------------|
 | Qwen3.5-9B FP8 | `lovedheart/Qwen3.5-9B-FP8` | ~9 GB | `C:\Users\mojtaba\.cache\huggingface` |
-| Qwen3.5-4B BF16 | `Qwen/Qwen3.5-4B` | ~9.3 GB | same |
+| Qwen3.5-4B FP8  | `lovedheart/Qwen3.5-4B-FP8` | ~4 GB | same |
 
 ### Key Discoveries
 
@@ -366,7 +366,7 @@ if __name__ == "__main__":
 2. **Qwen3.5 is multimodal** — vision encoder allocates VRAM by default. Fixed with `--limit-mm-per-prompt '{"image":0,"video":0}'`
 3. **Thinking mode enabled by default** — generates hidden reasoning tokens, reduces speed from ~50 to ~5 tok/s. Fixed by patching chat template (`no_think.jinja`)
 4. **9B fp8 on 16 GB: max context = 8192** — KV cache math leaves no room for more
-5. **4B bf16 on 16 GB: context = 16384** — smaller model, more KV cache room
+5. **4B fp8 on 16 GB: context = 16384** — half the VRAM of bf16, even more KV cache room
 6. **FlashInfer JIT on 4B** — first startup compiles CUDA kernels (~5 min). Instant after that
 7. **`--enforce-eager` skips CUDA graph compilation** — 30–60 min compile time avoided with minimal speed loss for interactive chat
 
@@ -375,7 +375,7 @@ if __name__ == "__main__":
 | Model | Speed | Context | VRAM Used |
 |-------|-------|---------|-----------|
 | Qwen3.5-9B FP8 (port 8000) | **~50 tok/s** | 8,192 tokens | ~14.2 GB |
-| Qwen3.5-4B BF16 (port 8001) | **~70 tok/s** | 16,384 tokens | ~15.2 GB |
+| Qwen3.5-4B FP8  (port 8001) | **~80 tok/s** | 16,384 tokens | ~13.5 GB |
 
 ---
 
@@ -395,7 +395,7 @@ LOCAL MODELS/
 │   ├── continue_config.yaml.example ← copy to C:\Users\<you>\.continue\config.yaml
 │   └── README.md                    ← this file
 │
-└── Qwen3.5-4B BF16 Local/
+└── Qwen3.5-4B FP8 Local/
     ├── config.env                   ← edit server parameters (requires restart)
     ├── start.bat                    ← direct launcher (port 8001)
     ├── start_with_log.ps1           ← PowerShell launcher with log file
@@ -439,6 +439,6 @@ wsl --update
 ## Credits
 
 - [lovedheart/Qwen3.5-9B-FP8](https://huggingface.co/lovedheart/Qwen3.5-9B-FP8) — community FP8 of [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)
-- [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) — official BF16 instruct model
+- [lovedheart/Qwen3.5-4B-FP8](https://huggingface.co/lovedheart/Qwen3.5-4B-FP8) — community FP8 of [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B)
 - [vLLM](https://github.com/vllm-project/vllm) — inference engine
 - [Continue](https://github.com/continuedev/continue) — VS Code extension
