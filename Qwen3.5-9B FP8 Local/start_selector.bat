@@ -5,7 +5,7 @@
 ::            (parent folder that contains both model folders)
 :: ============================================================
 echo ============================================================
-echo   Local LLM Server — Model Selector
+echo   Local LLM Server ??? Model Selector
 echo ============================================================
 echo.
 echo   [1]  Qwen3.5-9B FP8   port 8000  ~50 tok/s  8K context  (higher quality)
