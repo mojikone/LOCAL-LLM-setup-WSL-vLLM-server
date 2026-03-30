@@ -7,17 +7,10 @@ echo   Edit config.env to change model parameters
 echo ============================================================
 echo.
 
-:: Load config.env variables
-for /f "usebackq tokens=1,* delims==" %%A in ("config.env") do (
-    set line=%%A
-    if not "!line:~0,1!"=="#" if not "%%A"=="" (
-        set %%A=%%B
-    )
-)
 setlocal enabledelayedexpansion
 
-:: Re-read config (delayed expansion needed for variables with !)
-for /f "usebackq eols=# tokens=1,* delims==" %%A in ("config.env") do (
+:: Load config.env from same folder as this bat file
+for /f "usebackq eols=# tokens=1,* delims==" %%A in ("%~dp0config.env") do (
     if not "%%A"=="" if not "%%B"=="" (
         set "%%A=%%B"
     )

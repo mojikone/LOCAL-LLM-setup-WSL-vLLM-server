@@ -8,7 +8,7 @@ echo ============================================================
 echo.
 
 :: Load config.env (skip comment lines)
-for /f "usebackq eols=# tokens=1,* delims==" %%A in ("config.env") do (
+for /f "usebackq eols=# tokens=1,* delims==" %%A in ("%~dp0config.env") do (
     if not "%%A"=="" if not "%%B"=="" set "%%A=%%B"
 )
 
